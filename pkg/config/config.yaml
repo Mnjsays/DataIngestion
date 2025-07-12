@@ -1,0 +1,3 @@
+local:
+  port: "8094"
+  cydresUrl: "https://jsonplaceholder.typicode.com/posts"
