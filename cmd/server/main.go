@@ -11,10 +11,12 @@ import (
 	"go.uber.org/zap"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
-	app := createAppConfig()
+	app, cancel := createAppConfig()
+	defer cancel()
 	if app != nil {
 		app.Logger.Info("Data ingestion pipeline configured")
 		posts, err := dataParser.DataFetch(app)
@@ -23,7 +25,7 @@ func main() {
 			return
 		}
 		app.Logger.Info("data fetched from placeholders server, Ingestion to storage in  progress")
-		err = storage.AwsStorage(&posts, app)
+		err = storage.AwsWrite(&posts, app)
 		if err != nil {
 			app.Logger.Error("data Ingestion failed with error", zap.Error(err))
 			return
@@ -31,7 +33,7 @@ func main() {
 		app.Logger.Info("data uploaded to cloud storage i.e., S3")
 
 		gmux := mux.NewRouter()
-		gmux.HandleFunc("getData", dataParser.DataRetriver).Methods("GET")
+		gmux.HandleFunc("/gets3Data/{filename}", dataParser.DataRetriever(app)).Methods("GET")
 		err = http.ListenAndServe(fmt.Sprintf(":%s", app.Config.Port), gmux)
 		if err != nil {
 			app.Logger.Error("falied to listen at given port", zap.Error(err))
@@ -39,9 +41,10 @@ func main() {
 	}
 
 }
-func createAppConfig() *types.App {
+func createAppConfig() (*types.App, context.CancelFunc) {
 	var err error
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+
 	env := util.GetApplicationEnvirnoment()
 	logger, err := zap.NewDevelopment()
 	if err != nil {
@@ -59,5 +62,5 @@ func createAppConfig() *types.App {
 		Config: config,
 		Env:    env,
 		Ctx:    ctx,
-	}
+	}, cancel
 }

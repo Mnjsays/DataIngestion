@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"gopkg.in/yaml.v3"
 	"os"
+	"strings"
 )
 
 func GetApplicationEnvirnoment() string {
@@ -40,4 +41,9 @@ func ReadConfig(filePath string, config interface{}) error {
 		return err
 	}
 	return nil
+}
+func Sanitize(s string) string {
+	s = strings.ReplaceAll(s, "-", "")
+	s = strings.ReplaceAll(s, ".", "")
+	return s
 }
