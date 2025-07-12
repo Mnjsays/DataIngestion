@@ -5,9 +5,9 @@ import (
 	"dataIngestion/pkg/dataParser"
 	"dataIngestion/pkg/storage"
 	"dataIngestion/types"
-	"dataIngestion/util"
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
@@ -43,24 +43,40 @@ func main() {
 }
 func createAppConfig() (*types.App, context.CancelFunc) {
 	var err error
+	err = godotenv.Load() // Load .env file
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error loading .env file: %v\n", err)
+		os.Exit(1)
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
-	env := util.GetApplicationEnvirnoment()
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialize logger: %v\n", err)
 		os.Exit(1)
 	}
 	defer logger.Sync()
-
-	config, err := util.GetConfig(env, logger)
-	if err != nil {
-		logger.Fatal("failed to load config details", zap.Error(err))
+	config := &types.AppConfig{
+		Port:      os.Getenv("PORT"),
+		CydresUrl: os.Getenv("CYDRES_URL"),
+		AwsS3: types.AwsS3Config{
+			BucketName: os.Getenv("AWS_BUCKET_NAME"),
+			SecretKey:  os.Getenv("AWS_SECRET_KEY"),
+			AccessKey:  os.Getenv("AWS_ACCESS_KEY"),
+			Region:     os.Getenv("AWS_REGION"),
+			Folder:     os.Getenv("AWS_FOLDER_NAME"),
+		},
 	}
+
+	//env := util.GetApplicationEnvirnoment()
+	//config, err := util.GetConfig(env, logger)
+	//if err != nil {
+	//	logger.Fatal("failed to load config details", zap.Error(err))
+	//}
 	return &types.App{
 		Logger: logger,
 		Config: config,
-		Env:    env,
-		Ctx:    ctx,
+		//Env:    env,
+		Ctx: ctx,
 	}, cancel
 }
