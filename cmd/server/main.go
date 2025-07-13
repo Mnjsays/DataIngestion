@@ -25,7 +25,8 @@ func main() {
 			return
 		}
 		app.Logger.Info("data fetched from placeholders server, Ingestion to storage in  progress")
-		err = storage.AwsWrite(&posts, app)
+		storageBackend := getStorage(app)
+		err = storageBackend.StoreData(&posts)
 		if err != nil {
 			app.Logger.Error("data Ingestion failed with error", zap.Error(err))
 			return
@@ -33,7 +34,7 @@ func main() {
 		app.Logger.Info("data uploaded to cloud storage i.e., S3")
 
 		gmux := mux.NewRouter()
-		gmux.HandleFunc("/gets3Data/{filename}", dataParser.DataRetriever(app)).Methods("GET")
+		gmux.HandleFunc("/gets3Data/{filename}", dataParser.DataRetriever(app, storageBackend)).Methods("GET")
 		err = http.ListenAndServe(fmt.Sprintf(":%s", app.Config.Port), gmux)
 		if err != nil {
 			app.Logger.Error("falied to listen at given port", zap.Error(err))
@@ -67,7 +68,6 @@ func createAppConfig() (*types.App, context.CancelFunc) {
 			Folder:     os.Getenv("AWS_FOLDER_NAME"),
 		},
 	}
-
 	//env := util.GetApplicationEnvirnoment()
 	//config, err := util.GetConfig(env, logger)
 	//if err != nil {
@@ -76,7 +76,11 @@ func createAppConfig() (*types.App, context.CancelFunc) {
 	return &types.App{
 		Logger: logger,
 		Config: config,
-		//Env:    env,
-		Ctx: ctx,
+		Client: &http.Client{Timeout: 4 * time.Second},
+		Ctx:    ctx,
 	}, cancel
+}
+func getStorage(app *types.App) storage.Storage {
+
+	return &storage.S3Storage{App: app}
 }

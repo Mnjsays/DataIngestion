@@ -5,13 +5,14 @@ import (
 	"dataIngestion/pkg/storage"
 	"dataIngestion/types"
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
 
-func DataRetriever(app *types.App) http.HandlerFunc {
+func DataRetriever(app *types.App, storageBackend storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		app.Logger.Info("Data Retriever Api called")
 		vars := mux.Vars(r) // Extract path parameters
@@ -20,7 +21,7 @@ func DataRetriever(app *types.App) http.HandlerFunc {
 			http.Error(w, "Filename is required", http.StatusBadRequest)
 			return
 		}
-		fileContents, err := storage.AwsRead(filename, app)
+		fileContents, err := storageBackend.ReadData(filename)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
@@ -34,7 +35,7 @@ func DataRetriever(app *types.App) http.HandlerFunc {
 			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to parse file contents"})
 			return
 		}
-		app.Logger.Info("Data Fetched")
+		app.Logger.Info("Data Fetched from storage")
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(jsonData)
 	}
@@ -43,13 +44,15 @@ func DataFetch(app *types.App) (models.Posts, error) {
 	if app.Config.CydresUrl == "" {
 		app.Logger.Fatal("placeholder or storage url not configured")
 	}
-	req, err := http.NewRequestWithContext(app.Ctx, http.MethodGet, app.Config.CydresUrl, nil)
+	client := app.Client
+	if client == nil {
+		return models.Posts{}, errors.New("Http client not available,aborting")
+	}
+	re, err := http.NewRequestWithContext(app.Ctx, http.MethodGet, app.Config.CydresUrl, nil)
 	if err != nil {
-		app.Logger.Error("Error fetching data from API", zap.Error(err))
 		return models.Posts{}, err
 	}
-	client := http.Client{}
-	resp, err := client.Do(req)
+	resp, err := client.Do(re)
 	if err != nil {
 		app.Logger.Error("Error fetching data from API", zap.Error(err))
 		return models.Posts{}, err

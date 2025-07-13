@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 	"go.uber.org/zap"
+	"net/http"
 )
 
 type App struct {
@@ -10,4 +11,5 @@ type App struct {
 	Ctx    context.Context
 	Logger *zap.Logger
 	Config *AppConfig
+	Client *http.Client
 }

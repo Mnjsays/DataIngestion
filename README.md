@@ -59,3 +59,13 @@ Dependencies
 ->AWS SDK for Go: For S3 interactions.
 ->Zap: For structured logging.
 
+
+Q&A
+1.What would you improve if you had more time?
+    -To add elastic and kibana support to visualize the logs and monitor.
+    -Jenkins support to continous developmemnt and deployment 
+2.What were the hardest parts to implement and why?
+    -Aws s3 storage part 
+    -Prior knowledge of s3 api was missing 
+3.What trade-offs did you consider?
+    Hard coded s3 credentials , use of secrets and configMaps would have been a great option
