@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dataIngestion
+spec:
+  selector:
+    app: dataIngestion
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8094
+  type: ClusterIP
