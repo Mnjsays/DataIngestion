@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/gorilla/mux"
-	"go.uber.org/zap"
 	"net/http"
 	"time"
 )
@@ -15,7 +14,7 @@ import (
 func DataRetriever(app *types.App, storageBackend storage.Storage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		app.Logger.Info("Data Retriever Api called")
-		vars := mux.Vars(r) // Extract path parameters
+		vars := mux.Vars(r)
 		filename, ok := vars["filename"]
 		if !ok || filename == "" {
 			http.Error(w, "Filename is required", http.StatusBadRequest)
@@ -42,7 +41,7 @@ func DataRetriever(app *types.App, storageBackend storage.Storage) http.HandlerF
 }
 func DataFetch(app *types.App) (models.Posts, error) {
 	if app.Config.CydresUrl == "" {
-		app.Logger.Fatal("placeholder or storage url not configured")
+		return models.Posts{}, errors.New("placeholder url not configured")
 	}
 	client := app.Client
 	if client == nil {
@@ -54,7 +53,6 @@ func DataFetch(app *types.App) (models.Posts, error) {
 	}
 	resp, err := client.Do(re)
 	if err != nil {
-		app.Logger.Error("Error fetching data from API", zap.Error(err))
 		return models.Posts{}, err
 	}
 	defer resp.Body.Close()

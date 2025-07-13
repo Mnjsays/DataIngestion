@@ -76,7 +76,7 @@ func createAppConfig() (*types.App, context.CancelFunc) {
 	return &types.App{
 		Logger: logger,
 		Config: config,
-		Client: &http.Client{Timeout: 4 * time.Second},
+		Client: &http.Client{Timeout: 5 * time.Second},
 		Ctx:    ctx,
 	}, cancel
 }

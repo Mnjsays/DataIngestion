@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: DataIngestion-deployment
+  name: dataingestion-deployment
   labels:
-    app: dataIngestion
+    app: dataingestion
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dataIngestion
+      app: dataingestion
   template:
     metadata:
       labels:
-        app: dataIngestion
+        app: dataingestion
     spec:
       containers:
-        - name: dataIngestion
-          image: d7:latest
-          imagePullPolicy: Always
+        - name: dataingestion
+          image: dataingestion:latest
+          imagePullPolicy: Never
           ports:
             - containerPort: 8094
 
