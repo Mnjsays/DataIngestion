@@ -23,7 +23,7 @@ func DataRetriever(app *types.App) http.HandlerFunc {
 		fileContents, err := storage.AwsRead(filename, app)
 		if err != nil {
 			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{"error": "No such file found"})
 			return
 		}

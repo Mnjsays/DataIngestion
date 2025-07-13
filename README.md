@@ -1,12 +1,12 @@
 # Data Ingestion
 Overview
 
-->The DataIngestion project is designed to fetch data from an external API, process it, and store it in an AWS S3 bucket(Different Storage provide implemenation in progress). 
+->The DataIngestion project is designed to fetch data from an external API, process it, and store it in an AWS S3 bucket
 ->It also provides an API to retrieve stored data from S3.
 
 Features
 ->Fetch data from an external API.
-->Store the fetched data in AWS S3 in JSON format.
+->Store the fetched data in AWS S3 in JSON file format.
 ->Retrieve stored data from S3 via an HTTP API.
 ->.env-based configuration management.
 
@@ -21,19 +21,33 @@ Project Structure
 
 
 
-API Endpoints
-1.  Fetch Data from S3
-    Endpoint: /gets3Data/{filename}
-    Method: GET
-    Description: Retrieves the specified file data from the S3 bucket.
-    Path Parameter:
-    filename: Name of the file to retrieve.
+API Documentation
 
-GET http://localhost:8094/gets3Data/samplefilename
+1. GET /gets3Data/{filename}
 
-Data Retrieval:  
-->The DataRetriever function retrieves a file from the S3 bucket based on the filename provided in the URL.
-->AWS S3 Integration:  
+Description: Retrieves a file from S3 and returns its contents as JSON.
+Path Parameters:
+    filename (string): The name of the file to retrieve from S3.
+Responses:
+    200 OK: Returns the file contents as JSON.
+    400 Bad Request: If the filename is missing.
+    { "error": "Filename is required" }
+    500 Internal Server Error: If the file  cannot be parsed.
+    { "error": "Failed to parse file contents" }
+
+2. Data Fetching Logic
+
+Source: Fetches data from the external API (CYDRES_URL).
+    Transformation:
+    Converts the API response into a models.Posts structure.
+    Adds metadata such as IngestedAt (current timestamp) and Source (e.g., "PlaceHolderAPI").
+
+3. Data Ingestion to S3
+Logic:
+    Transforms the models.Posts structure into JSON.
+    Writes the JSON data to an S3 bucket under a sanitized timestamp-based filename.
+
+
 
 Running the Application
 
