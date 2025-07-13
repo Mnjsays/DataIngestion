@@ -43,7 +43,7 @@ func main() {
 }
 func createAppConfig() (*types.App, context.CancelFunc) {
 	var err error
-	err = godotenv.Load() // Load .env file
+	err = godotenv.Load()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error loading .env file: %v\n", err)
 		os.Exit(1)

@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -45,6 +46,9 @@ func AwsRead(fileName string, app *types.App) ([]byte, error) {
 		Key:    aws.String(key),
 	})
 	if err != nil {
+		if aerr, ok := err.(awserr.Error); ok && aerr.Code() == s3.ErrCodeNoSuchKey {
+			return nil, fmt.Errorf("file not found: %s", key)
+		}
 		return nil, fmt.Errorf("failed to get object from S3: %v", err)
 	}
 	defer result.Body.Close()
@@ -60,6 +64,7 @@ func AwsWrite(posts *models.Posts, app *types.App) error {
 		app.Logger.Error("JSON marshal error: %v", zap.Error(err))
 		return err
 	}
+
 	svc, err := getAwsS3Session(app)
 	if err != nil {
 		app.Logger.Error("S3 Session error: %v", zap.Error(err))

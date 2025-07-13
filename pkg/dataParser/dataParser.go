@@ -22,12 +22,16 @@ func DataRetriever(app *types.App) http.HandlerFunc {
 		}
 		fileContents, err := storage.AwsRead(filename, app)
 		if err != nil {
-			app.Logger.Error("Data Retriever Api error", zap.Error(err))
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "No such file found"})
+			return
 		}
 		var jsonData interface{}
 		if err := json.Unmarshal(fileContents, &jsonData); err != nil {
-			app.Logger.Error("Failed to parse JSON", zap.Error(err))
-			http.Error(w, "Invalid JSON data", http.StatusInternalServerError)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to parse file contents"})
 			return
 		}
 		app.Logger.Info("Data Fetched")
