@@ -1,5 +1,4 @@
 
-# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
@@ -19,3 +18,4 @@ go.work.sum
 # Editor/IDE
 .idea/
 .env
+dataingestion.tar
