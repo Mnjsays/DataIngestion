@@ -78,6 +78,13 @@ Retrieves a file from S3 and returns its contents as JSON.
 ```bash
 go run cmd/server/main.go
 ```
+Once the application starts:
+
+It fetches data from the external API defined in CYDRES_URL
+
+Transforms and uploads the data as a JSON file to your configured S3 bucket
+
+Logs the uploaded filename (without .json extension) with timestamp to dataingestion.log. Use this filename in the GET /gets3Data/{filename} API call to retrieve the stored data
 
 ---
 
