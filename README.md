@@ -48,7 +48,7 @@ Retrieves a file from S3 and returns its contents as JSON.
 | Status                      | Description                   | Example JSON                                   |
 | --------------------------- | ----------------------------- | ---------------------------------------------- |
 | `200 OK`                    | Success                       | *(Returns file contents)*                      |
-| `400 Bad Request`           | Invalid filename   | `{ "error": "No such file found" }`          |
+| `400 Bad Request`           | Missing or invalid filename   | `{ "error": "Filename is required" }`          |
 | `500 Internal Server Error` | File parse or S3 read failure | `{ "error": "Failed to parse file contents" }` |
 
 ---
@@ -75,20 +75,27 @@ Retrieves a file from S3 and returns its contents as JSON.
 
 ## ⚙️ Running the Application
 
+Make sure a `.env` file is present in the **project root directory**, containing configuration variables such as `CYDRES_URL` and `AWS` credentials.
+
+To start the application:
+
 ```bash
 go run cmd/server/main.go
 ```
-PLEASE MAKESURE .env FILE IS PLACED IN ROOT DIRECTORY
 
 Once the application starts:
 
-It fetches data from the external API defined in CYDRES_URL
-
-Transforms and uploads the data as a JSON file to your configured S3 bucket
-
-Logs the uploaded filename (without .json extension) with timestamp to dataingestion.log. Use this filename in the GET /gets3Data/{filename} API call to retrieve the stored data
+* It fetches data from the external API defined in `CYDRES_URL`
+* Transforms and uploads the data as a JSON file to your configured S3 bucket
+* Logs the uploaded filename (without `.json` extension) with timestamp to `dataingestion.log`. Use this filename in the `GET /gets3Data/{filename}` API call to retrieve the stored data
 
 ---
+
+## 📦 Docker & Log Monitoring
+
+> **Note:** The included `docker-compose.yml` and `filebeat.yml` files are specifically provided to set up **Elasticsearch + Kibana + Filebeat** for log visualization. These are **not required to run the core application itself**, but are useful for monitoring structured logs (`dataingestion.log`).
+
+Seperate Dockerfile is provided to run core application.
 
 ## 📆 Dependencies
 
@@ -118,5 +125,6 @@ Logs the uploaded filename (without .json extension) with timestamp to datainges
 
 | Aspect      | Trade-off Made                     | Ideal Alternative                          |
 | ----------- | ---------------------------------- | ------------------------------------------ |
+| Credentials | Hardcoded in config for simplicity | Use `.env`, Secrets Manager, or ConfigMaps |
 | Logging     | File + stdout logging only         | Ship logs to centralized tools like ELK    |
 | Storage     | S3 for simplicity and durability   | DB or Elastic if indexing/query is needed  |
