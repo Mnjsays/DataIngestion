@@ -1,0 +1,4 @@
+{"level":"info","timestamp":"2025-07-15T17:32:39.911+0530","caller":"server/main.go:22","msg":"Data ingestion pipeline configured"}
+{"level":"info","timestamp":"2025-07-15T17:32:40.629+0530","caller":"server/main.go:28","msg":"data fetched from placeholders server, Ingestion to storage in  progress"}
+{"level":"info","timestamp":"2025-07-15T17:32:40.876+0530","caller":"storage/aws_s3.go:81","msg":"Data stored in S3 with file name:","file_name":"1515400715T120240"}
+{"level":"info","timestamp":"2025-07-15T17:32:40.877+0530","caller":"server/main.go:35","msg":"data uploaded to cloud storage i.e., S3"}
