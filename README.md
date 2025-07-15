@@ -48,7 +48,7 @@ Retrieves a file from S3 and returns its contents as JSON.
 | Status                      | Description                   | Example JSON                                   |
 | --------------------------- | ----------------------------- | ---------------------------------------------- |
 | `200 OK`                    | Success                       | *(Returns file contents)*                      |
-| `400 Bad Request`           | Missing or invalid filename   | `{ "error": "Filename is required" }`          |
+| `400 Bad Request`           | Invalid filename   | `{ "error": "No such file found" }`          |
 | `500 Internal Server Error` | File parse or S3 read failure | `{ "error": "Failed to parse file contents" }` |
 
 ---
@@ -78,6 +78,8 @@ Retrieves a file from S3 and returns its contents as JSON.
 ```bash
 go run cmd/server/main.go
 ```
+PLEASE MAKESURE .env FILE IS PLACED IN ROOT DIRECTORY
+
 Once the application starts:
 
 It fetches data from the external API defined in CYDRES_URL

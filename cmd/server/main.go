@@ -5,6 +5,7 @@ import (
 	"dataIngestion/pkg/dataParser"
 	"dataIngestion/pkg/storage"
 	"dataIngestion/types"
+	"dataIngestion/util"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
@@ -51,12 +52,8 @@ func createAppConfig() (*types.App, context.CancelFunc) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to initialize logger: %v\n", err)
-		os.Exit(1)
-	}
-	defer logger.Sync()
+	logger := util.GetLogger()
+
 	config := &types.AppConfig{
 		Port:      os.Getenv("PORT"),
 		CydresUrl: os.Getenv("CYDRES_URL"),
